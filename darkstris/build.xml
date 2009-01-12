@@ -141,7 +141,7 @@
 
 		<!-- copy app.properties to classes/META-INF -->
 		<mkdir dir="${build.classes}/META-INF" />
-		<copyfile src="app.properties" dest="${build.classes}/META-INF/app.properties"/>
+		<copy file="app.properties" tofile="${build.classes}/META-INF/app.properties"/>
 	</target>
 
 	<!-- Creates a jar of the compiled code and libs -->
