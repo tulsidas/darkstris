@@ -38,7 +38,7 @@
 	<property name="server.jar" value="dsserver.jar" />
 	<property name="project.width" value="720" />
 	<property name="project.height" value="455" />
-	<property name="project.params" value="port: 4485" />
+	<property name="project.params" value="port: 4458" />
 	<property name="pulpcore.build" value="debug" />
 	<property name="pulpcore.path" value="." />
 
@@ -134,8 +134,8 @@
 
 			<classpath path="${mina.jar.file}" />
 			<classpath path="${core.jar.file}" />
+			
 			<classpath path="${slfj4.jar.file}" />
-
 			<include name="**/*.java" />
 		</javac>
 
