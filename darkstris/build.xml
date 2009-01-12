@@ -45,7 +45,7 @@
 	<!-- additional paths -->
 	<property name="mina.jar.file" value="${pulpcore.path}/mina-core-1.1.7.jar" />
 	<property name="slfj4.jar.file" value="${pulpcore.path}/slf4j-api-1.4.0.jar" />
-	<property name="sgs-server.jar.file" value="${pulpcore.path}/sgs-server.jar" />
+	<property name="sgs-server-api.jar.file" value="${pulpcore.path}/sgs-server-api.jar" />
 
 	<!--
         Normally you won't need to edit anything below this line 
@@ -130,7 +130,7 @@
 			<src path="${src}/org/slf4j/impl" />
 			<src path="${src}/com/" />
 
-			<classpath path="${sgs-server.jar.file}" />
+			<classpath path="${sgs-server-api.jar.file}" />
 
 			<classpath path="${mina.jar.file}" />
 			<classpath path="${core.jar.file}" />
