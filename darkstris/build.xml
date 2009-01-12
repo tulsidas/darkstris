@@ -33,12 +33,12 @@
                               For Max OS X, use "${java.home}/../Classes/classes.jar"
     -->
 	<property name="project.scene" value="client.LoginScene" />
-	<property name="project.jar" value="ds.jar" />
-	<property name="project.assets.zip" value="ds.zip" />
+	<property name="project.jar" value="ds${DSTAMP}${TSTAMP}.jar" />
+	<property name="project.assets.zip" value="ds${DSTAMP}${TSTAMP}.zip" />
 	<property name="server.jar" value="dsserver.jar" />
 	<property name="project.width" value="720" />
 	<property name="project.height" value="455" />
-	<property name="project.params" value="" />
+	<property name="project.params" value="port: 4485" />
 	<property name="pulpcore.build" value="debug" />
 	<property name="pulpcore.path" value="." />
 
