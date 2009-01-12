@@ -1,0 +1,194 @@
+<?xml version="1.0"?>
+
+<project name="darkstris" default="build" basedir=".">
+
+	<property file="build.properties" />
+	<tstamp />
+
+	<!-- 
+        Edit these properties for your project:
+        
+        project.jar           The name of the project jar to create.
+        project.assets        The name of the project zip file to create.
+        project.scene         The name of the first scene to display 
+        project.width         The width of the applet.
+        project.height        The height of the applet.
+        pulpcore.build        Build mode: "release" or "debug".
+                              For "debug" builds, these hotkeys are available:
+                              Ctrl-1  Slow-motion mode.
+                              Ctrl-2  Normal speed mode.
+                              Ctrl-3  Fast-forward mode.
+                              Ctrl-C  View the console. The console also appears when there is an 
+                                      uncaught exception.
+                              Ctrl-I  View frame rate and memory information. 
+                              Ctrl-X  View the Scene Selector.
+                              Ctrl-D  View dirty rectangles (Scene2D scenes only).
+                              For "release" builds, the resulting jar is obfucated if the Proguard 
+                              jar is available.
+        pulpcore.path         The path to the directory containing the PulpCore jars.
+        proguard.path         The path to the Proguard jar (Proguard 3.6 or newer).
+        library.path          The path to the jar or zip for the Java runtime. Required for Proguard. 
+                              To ensure maximum compatibility, use the Java 1.4 classes. Otherwise:
+                              For Windows, use "${java.home}/lib/rt.jar".
+                              For Max OS X, use "${java.home}/../Classes/classes.jar"
+    -->
+	<property name="project.scene" value="client.LoginScene" />
+	<property name="project.jar" value="ds.jar" />
+	<property name="project.assets.zip" value="ds.zip" />
+	<property name="server.jar" value="dsserver.jar" />
+	<property name="project.width" value="720" />
+	<property name="project.height" value="455" />
+	<property name="project.params" value="" />
+	<property name="pulpcore.build" value="debug" />
+	<property name="pulpcore.path" value="." />
+
+	<!-- additional paths -->
+	<property name="mina.jar.file" value="${pulpcore.path}/mina-core-1.1.7.jar" />
+	<property name="slfj4.jar.file" value="${pulpcore.path}/slf4j-api-1.4.0.jar" />
+	<property name="sgs-server.jar.file" value="${pulpcore.path}/sgs-server.jar" />
+
+	<!--
+        Normally you won't need to edit anything below this line 
+    -->
+	<property name="pulpcore.version" value="0.11" />
+	<property name="pulpcore.platform" value="applet" />
+	<property name="autoload.assets.zip" value="${project.assets.zip}" />
+
+	<!-- Project paths -->
+	<property name="src" value="src" />
+	<property name="build" value="build/" />
+	<property name="build.temp" value="${build}/temp" />
+	<property name="build.classes" value="${build.temp}/classes" />
+	<property name="build.res" value="${build.temp}" />
+
+	<!-- PulpCore paths -->
+	<property name="core.jar.file" value="${pulpcore.path}/pulpcore-${pulpcore.platform}-${pulpcore.build}-${pulpcore.version}.jar" />
+	<property name="tools.jar.file" value="${pulpcore.path}/pulpcore-assettools-${pulpcore.version}.jar" />
+
+	<!-- PulpCore tasks -->
+	<taskdef resource="tasks.properties" classpath="${tools.jar.file}" />
+
+	<target name="clean" description="Deletes builds, compiled classes, and processed assets">
+		<delete dir="${build}" />
+	</target>
+
+	<!-- Deletes the temporary build path -->
+	<target name="clean-temp">
+		<delete dir="${build.temp}" />
+	</target>
+
+	<!-- Initials directories and checks for valid properties -->
+	<target name="init">
+		<fail message="Required file not found: ${core.jar.file}">
+			<condition>
+				<not>
+					<available file="${core.jar.file}" />
+				</not>
+			</condition>
+		</fail>
+
+		<fail message="Required file not found: ${tools.jar.file}">
+			<condition>
+				<not>
+					<available file="${tools.jar.file}" />
+				</not>
+			</condition>
+		</fail>
+
+		<fail message="File not found: ${library.path}">
+			<condition>
+				<and>
+					<isset property="library.path" />
+					<not>
+						<equals arg1="${library.path}" arg2="" />
+					</not>
+					<not>
+						<available file="${library.path}" />
+					</not>
+				</and>
+			</condition>
+		</fail>
+
+		<condition property="applet.html.task">
+			<equals arg1="${pulpcore.platform}" arg2="applet" />
+		</condition>
+
+		<delete dir="${build.classes}" failonerror="false" />
+		<mkdir dir="${build}" />
+		<mkdir dir="${build.temp}" />
+		<mkdir dir="${build.classes}" />
+		<mkdir dir="${build.res}" />
+	</target>
+
+
+	<!-- Compiles the code -->
+	<target name="compile" depends="init">
+		<javac destdir="${build.classes}" source="5" target="5" debug="on" deprecation="on">
+			<src path="${src}/client" />
+			<src path="${src}/common" />
+			<src path="${src}/server" />
+			<src path="${src}/org/slf4j/impl" />
+			<src path="${src}/com/" />
+
+			<classpath path="${sgs-server.jar.file}" />
+
+			<classpath path="${mina.jar.file}" />
+			<classpath path="${core.jar.file}" />
+			<classpath path="${slfj4.jar.file}" />
+
+			<include name="**/*.java" />
+		</javac>
+
+		<!-- copy app.properties to classes/META-INF -->
+		<mkdir dir="${build.classes}/META-INF" />
+		<copyfile src="app.properties" dest="${build.classes}/META-INF/app.properties"/>
+	</target>
+
+	<!-- Creates a jar of the compiled code and libs -->
+	<target name="jar" depends="compile">
+
+		<!-- build client jar -->
+		<jar destfile="${build}/${project.jar}">
+			<fileset dir="${build.classes}">
+				<patternset id="client.classes">
+					<include name="**/*.class" />
+					<exclude name="server/**" />
+				</patternset>
+			</fileset>
+			<zipfileset src="${slfj4.jar.file}" excludes="META-INF/**/*" />
+			<zipfileset src="${mina.jar.file}" excludes="META-INF/**/*" />
+			<zipfileset src="${core.jar.file}" excludes="META-INF/**/*" />
+		</jar>
+
+		<!-- build server jar -->
+		<jar destfile="${build}/${server.jar}">
+			<fileset dir="${build.classes}">
+				<patternset id="server.classes">
+					<include name="**/*.class" />
+					<include name="**/app.properties" />
+
+					<exclude name="client/**" />
+					<exclude name="org/slf4j/impl/**" />
+					<exclude name="com/**" />
+				</patternset>
+			</fileset>
+		</jar>
+	</target>
+
+	<!-- Creates index.html, splash.gif, and pulpcore.js -->
+	<target name="applet.html" depends="init" if="applet.html.task">
+		<pulpcore-applet destDir="${build}" archive="${project.jar}" width="${project.width}" height="${project.height}" scene="${project.scene}" assets="${autoload.assets.zip}" params="${project.params}" displaySource="${src}/${project.scene}.java" />
+	</target>
+
+
+	<!-- Creates the assets zip file -->
+	<target name="res" depends="init">
+		<pulpcore-assets srcDir="${src}" destDir="${build.res}/zip" />
+
+		<delete file="${build}/${project.assets.zip}" failonerror="false" />
+		<zip destfile="${build}/${project.assets.zip}" filesonly="true" whenempty="create" basedir="${build.res}/zip" />
+	</target>
+
+	<!-- Compiles the code and creates the assets zip and jars -->
+	<target name="build" depends="res, jar, applet.html" description="Build" />
+</project>
